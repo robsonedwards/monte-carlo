@@ -2,8 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj
 *.pdf
 *.log
 *.synctex.gz
 *.out
 *.aux
+*.toc
