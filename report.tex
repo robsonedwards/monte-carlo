@@ -6,6 +6,7 @@
 \usepackage{graphicx}			% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
 								% TeX will automatically convert eps --> pdf in pdflatex		
 \usepackage{amssymb}
+\usepackage{xcolor}
 
 \pagenumbering{gobble}
 
@@ -15,18 +16,17 @@
 
 \title{Assignment 3: Report}
 \author{Robson Edwards}
-\date{November 22, 2018}							% Activate to display a given date or no date
+\date{November 22, 2018}
+
+\newcommand \Rcode[1]{{\texttt{\colorbox{lightgray}{#1}}}}
 
 \begin{document}
 
 \maketitle
-%\tableofcontents
 
 I confirm that the following report and associated code is my own work, except where clearly indicated.
 
 %If you fit a model to some data, consider whether there is a need for goodness-of-fit tests. State the assumptions of the methods you use, and consider how likely they are to be met – see the above advice on the Discussion section for more on this.
-
-%Leave enough time to write a decent report. Good work badly reported will gain few marks. %LOL
 
 \section*{Abstract}
 
@@ -47,31 +47,66 @@ Our tests have a certain size and power... %TODO
 
 \section{Methods}
 
+Summary: We loaded and wrangled data, then simulated data, then applied tests. 
+
+\subsection{Data Wrangling}
+
+
+
+``Clinton's final tally came in at 65,844,610, compared to Donald Trump's 62,979,636, with a difference of 2,864,974. The total number of votes for other candidates was 7,804,213.'' \cite{time}
+
+``...compare the margin in the poll against the actual result. For instance, if a poll showed the Democrat winning by 2 percentage points in a race that the Republican ended up winning by 3 points, that would be a 5-point error. It would also be a 5-point error if the Democrat won by 7 points. We consider these errors to be equally bad even though the pollster ``called'' the winner correctly in one case and failed to do so in the other.''
+\cite{silver}
+
+Therefore, for each poll, we construct a variable \Rcode{error} as the poll margin minus the result margin for that state. Then, positive \Rcode{error} values correspond to Hillary Clinton losing a state which the pollster expected her to lose by a greater margin than the pollster expected, losing a state when she was expected to win, or winning a state by a lesser margin than expected (or, equivalently, Trump winning a state by a \emph{greater} margin than expected, and so on). Negative values of \Rcode{error} correspond to the above situations except with Clinton's name replaced by Trump's. 
+
+\subsection{Simulating Data}
+
+We created a large amount of simulated data by sampling from a distribution (which one?) with properties informed by the true data. 
+
+We could have also simulated data through non-parametric means, such as creating an empirical distribution function from the true data and then sampling from its inverse via a standard uniform distribution. (right?) However, our data contains a number of different potential input variables, under different ``situations'' as described earlier, each having different levels of covariance. This non-parametric method quickly becomes very complex to design and implement, and it's not obvious that it would yield significantly better results than the parametric simulation method. (right? some sort of ks.test to make sure true data is roughly bi/multi-nomial or whatever we end up sampling from?) Also the spec said not to
+
+\subsection{Testing Hypotheses}
+
+Correlation tests. 
+
 %Describe what you did, in enough detail that someone else could reproduce it. In academic papers this is sometimes not possible due to space constraints, so full details are relegated to an appendix; sometimes the computer code and input data are archived in an appendix (especially online appendices). For the reports in MT4613 you should be able to explain what you did concisely without the need for appendices. If the methods section is quite long, you may need subheadings to divide it into manageable parts. Don’t be afraid of using formulae here to explain your methods, but make sure you define all the symbols used. It may also be helpful to use a figure, for example to show a map of the study area, or a diagram explaining how various analyses fit together. Such figures will likely not be required in MT4613.
 
 \section{Results}
 
+%say what you found. Results should be given in the same order as the work was laid out in the methods section, with the same (or nearly the same) subheadings as the methods (if you had any). Only report results that are relevant to the problem at hand, and were motivated by the methods section – don’t just dump any old output from a computer program into the results section. Summarize results into tables and figures as much as possible, and don’t repeat information given in tables in the text, just refer to it. For example “All five populations showed a statistically significant decline in numbers after the fire (Table 1).” See below for more advice on tables and figures. Consider how many significant figures/decimal places results should reasonably be reported to, and be consistent – there is often no need to report results to more than 2 or 3 decimal places.
+
 Answer the research question 
 
-%ay what you found. Results should be given in the same order as the work was laid out in the methods section, with the same (or nearly the same) subheadings as the methods (if you had any). Only report results that are relevant to the problem at hand, and were motivated by the methods section – don’t just dump any old output from a computer program into the results section. Summarize results into tables and figures as much as possible, and don’t repeat information given in tables in the text, just refer to it. For example “All five populations showed a statistically significant decline in numbers after the fire (Table 1).” See below for more advice on tables and figures. Consider how many significant figures/decimal places results should reasonably be reported to, and be consistent – there is often no need to report results to more than 2 or 3 decimal places.
+Maybe, discuss implicit assumptions, and make a claim about how reliable the results are. 
 
-%\section{Discussion}
+\subsection{Size and Power}
 
-%Assumptions in the methods and ...
+Size and power of tests 
 
-%Actually Eiren doesn't want a discussion section. Oh well. 
+\subsection{Conclusion}
 
-%This section usually starts by discussing how reliable the results are. Lay out the assumptions of the methods used, consider how valid they are, and what the consequences of likely violations might be. After this, the discussion considers the implications of the results – what do they mean for the questions being addressed by the paper. This section often finishes with a brief consideration of what further work might be useful, often with specific suggestions.
+Conclusion
 
-\section{Conclusion}
+What do results mean for the research question? Further research?
 
 %Concisely lay out the main conclusions of the paper. This section is often somewhat redundant, given that these are also given in the abstract (although in less detail). You’re probably better to finish the discussion with a pity [pithy?] concluding paragraph.
 
-\section{References}
+\begin{thebibliography}{9}
+\bibitem{time}{
+Begley, S. (20 Dec. 2016). 
+\textit{Hillary Clinton Leads by 2.8 Million in Final Popular Vote Count.} [online] Time. Available at: http://time.com/4608555/hillary-clinton-popular-vote-final/ [Accessed 22 Nov. 2018].
+}
+
+\bibitem{silver}{
+Silver, N. (30 May 2018). 
+\textit{The Polls Are All Right} [online] FiveThirtyEight. Available at: https://fivethirtyeight.com/features/the-polls-are-all-right/ [Accessed 22 Nov. 2018].
+}
+\end{thebibliography}
 
 %This section is sometimes called “Literature cited”. Each printed text or web site referred to in the report should be listed here, in a standard format. The format can mimic any standard statistics journal; if in doubt, use the Harvard system of referencing (search on the web for information about this), which is something of a standard in science.
 
-\section{Appendix}
+\section*{Appendix}
 %\appendix{} %which one?
 
 \end{document}
