@@ -48,7 +48,7 @@ polls %>%
   select(-result, -clinton_margin) -> #remove unneeded columns
   polls
 
-polls$grade <- addNA(polls$grade) 
+#polls$grade <- addNA(polls$grade) 
   #So we can see how polls by pollsters 538 didn't grade performed
 
 polls$enddate <- as.numeric(polls$enddate) - as.numeric(as.Date("2016-11-08"))
@@ -87,7 +87,7 @@ simulate_and_test <- function(data_subset, n, effect_size, test){
   mean_error = mean(data_subset$error)
   mean_enddate = mean(data_subset$enddate)
   sd_error = sd(data_subset$error)
-  sim <- data.frame(enddate = sample(data_subset$enddate, n * 100, replace = TRUE))
+  sim <- data.frame(enddate = sample(as.integer(data_subset$enddate), n * 100, replace = TRUE))
   sim$error <- rnorm(n * 100, sd = sd_error, mean =  (sim$enddate - mean_enddate) * effect_size + mean_error)
   # test
   pvals <- 1:100
@@ -111,10 +111,54 @@ spearman <- function(x, y){
   return(unname(test["p.value"]))
 }
 
+for(method in c(pearson, spearman)){
+  for(effect_size in c(0, -0.001, -0.01, -0.05)){
+    for(g in levels(polls$grade)){
+      data <- polls[polls$grade == g,]
+      for(n in c(100, 1000, 4000)){
+        print(as.character( c("Effect:", effect_size,  
+                ". Grade:", g, ". n: ", n, ". Result: ", 
+                simulate_and_test(data, n, effect_size, method))))
+      }
+    }
+  }
+}
 
-############################## Hypothesis Testing ##############################
-
-
+# get_table <- function(effect_size, method){
+#   get_cell <- function(i, n, effect_size, method){
+#     data_subset <- data_subsets[i]
+#     return (simulate_and_test(data_subset, n, effect_size, method))
+#   }
+#   n100 = lapply(1:12, function(i){get_cell(i, 100, effect_size, method)})
+#   n1000 = lapply(1:12, function(i){get_cell(i, 1000, effect_size, method)})
+#   n4000 = lapply(1:12, function(i){get_cell(i, 4000, effect_size, method)})
+#   
+#   table <- data.frame(n100, n1000, n4000)
+#   rownames(table)<- c(levels(polls$grade), "all")
+#   return(table)
+# }
+# 
+# make_hypothesis_tables <- function(){
+#   for(effect_size in c(0, -0.001, -0.01, -0.05)){
+#     for(method in c(pearson, spearman)){
+#       get_table(effect_size, method)
+#     }
+#   }
+# }
+# 
+# get_data_subsets <- function(){
+#   data_subsets <- list()
+#   for(i in 1:length(levels(polls$grade))){
+#     data_subsets <- c(data_subsets, 
+#                       list(polls[polls$grade == levels(polls$grade)[i],]))
+#   }
+#   data_subsets <- c(data_subsets, list(polls))
+#   return(data_subsets)
+# }
+# 
+# data_subsets <- get_data_subsets()
+# 
+# make_hypothesis_tables()
 
 ############################# Garbage collection!! #############################
 rm(i, U.S., goodpolls, polls_sample, polls_us_election_2016, results_us_election_2016)
