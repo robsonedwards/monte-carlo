@@ -51,24 +51,40 @@ polls %>%
 polls$grade <- addNA(polls$grade) 
   #So we can see how polls 538 didn't grade performed
 
+polls$enddate <- as.numeric(polls$enddate) - as.numeric(as.Date("2016-11-08"))
+  # Now enddate is the number of days before the election, this makes intercept
+  # terms in the linear models we're about to derive much more interpretable
+
 # Remove 43 outliers that are > 3 sd's from the mean. (top 1% worst polls)
 polls %<>% filter(abs(polls$error - mean(polls$error)) < 3 * sd(polls$error) )
 
-# Exploratory Data Analysis
+########################## Exploratory Data Analysis ###########################
 polls_sample = polls[sample(1:nrow(polls), size = 150, replace = F),]
 plot(polls_sample$enddate, polls_sample$error2, pch = '+')
 lm(polls$error2 ~ polls$enddate)
+lm(polls$error ~ polls$enddate)
 
 goodpolls <- filter(polls, grepl("A", grade))
 plot(goodpolls$enddate, goodpolls$error2, pch = '+')
 lm(goodpolls$error2 ~ goodpolls$enddate)
+lm(goodpolls$error ~ goodpolls$enddate)
 
 # No evidence of correlation between date and poll error in general
-cor.test(polls$error, as.numeric(polls$enddate))
-# Some evidence of correlation for higher-rated polls
-cor.test(goodpolls$error, as.numeric(goodpolls$enddate))
+cor.test(polls$error, polls$enddate)
+cor.test(abs(polls$error), polls$enddate)
+cor.test(polls$error2, polls$enddate)
+
+# Some evidence of correlation for higher-rated polls, for some error measures
+cor.test(goodpolls$error, goodpolls$enddate)
+cor.test(abs(goodpolls$error), goodpolls$enddate)
+cor.test(goodpolls$error2, goodpolls$enddate)
 
 ################################## Simulation ##################################
+
+# H0: Enddate has no effect on error. 
+# H1: small effect ( error ~ N( mu + beta * .. -0.001 )
+# H1: medium effect ( .. -0.01 )
+# H1: large effect ( .. -0.1 )
 
 
 
@@ -76,8 +92,6 @@ cor.test(goodpolls$error, as.numeric(goodpolls$enddate))
 
 
 
-################################################################################
-
-# Garbage collection!! 
+############################# Garbage collection!! #############################
 rm(i, U.S., goodpolls, polls_sample, polls_us_election_2016, results_us_election_2016)
 
