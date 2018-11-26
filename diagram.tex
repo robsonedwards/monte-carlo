@@ -57,9 +57,15 @@ Assume poll errors are drawn from a normal distribution with a variance that is 
 \diabox{8cm}{
 So now we have four (one $H_0$ and three $H_1$) hypotheses, each of which corresponds to 19 simulation ``situations'' (4 showing different durations, 4 showing different pollsizes, 11 showing different grades) at three different sample sizes. 
 
-For each of these $4 \times 19 \times 3 = 228$ situations we apply both statistical tests. Then for the 57 $H_0$ situations we calculate size as the proportion of the $n$ samples for which $H_0$ was incorrectly rejected.
+~
 
+For each of these $4 \times 19 \times 3 = 228$ situations we create 100 samples and then apply both statistical tests.
+Then for the 57 $H_0$ situations we calculate size as the proportion of the 100 samples for which $H_0$ was incorrectly rejected.
 For the 171 situations under various $H_1$'s we calculate power as the proportion of the time that $H_0$ was correctly rejected. 
+
+~
+
+Notably, for all of these, the output of interest is the proportion where the test rejected $H_0$. 
 }
 
 \end{minipage}
