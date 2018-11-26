@@ -46,7 +46,7 @@ Our tests have a certain size and power... %TODO
 
 \section{Introduction}
 
-We use the \Rcode{polls\_us\_election\_2016} dataset from \Rcode{dslabs}, which contains poll data from FiveThirtyEight which include ``Poll results from US 2016 presidential elections aggregated from HuffPost Pollster, RealClearPolitics, polling firms and news reports.'' \cite{dslabs}
+We use the \Rcode{polls\_us\_election\_2016} dataset from \Rcode{dslabs}, which contains poll data from FiveThirtyEight which includes ``Poll results from US 2016 presidential elections aggregated from HuffPost Pollster, RealClearPolitics, polling firms and news reports.'' \cite{dslabs}
 
 %Give a concise background to the problem, referring to previous work in the field if that’s appropriate. For MT4613 you need to demonstrate that you understand the problem. Give a motivation for the work that’s going to be described in later sections – why did you do it (i.e., why is it scientifically worthwhile/interesting)? “Proper” scientific papers may also lay out the scientific hypotheses being tested – this might not be applicable to the reports you write for MT4613. Finish by describing in a couple of sentences how the rest of the report is structured (especially if you use a non-standard layout).
 
@@ -77,7 +77,7 @@ We also remove 43 ``outlier'' observations which have \Rcode{error} more than th
 
 \subsection{Simulating Data}
 
-The specified goal of this assignment is to generate a large amount of data in different situations, apply our statistical tests to the data, and then determine the \emph{statistical size} and \emph{power} of those tests in those situations. Of course, the size of a test is the probability of making a Type I error, that is, the probability of rejecting $H_0$, given that it is true. Similarly, the power of a test is the probability of correctly rejecting $H_0$ given $H_1$ is true, for a given $H_1$ \cite{spec}. Were we to simulate directly from the data, we would not know whether $H_0$ or $H_1$, as given in \S\ref{subsec:testing}, are true, and thus we could not assess the size or power of any test on those hypotheses. 
+The specified goal of this assignment is to generate a large amount of data in different situations, apply our statistical tests to the data, and then determine the \emph{statistical size} and \emph{power} of those tests in those situations. Of course, the size of a test is the probability of incorrectly rejecting $H_0$, given that it is true. Similarly, the power of a test is the probability of correctly rejecting $H_0$ given $H_1$ is true, for a given $H_1$ \cite{spec}. Were we to simulate directly from the data, we would not know whether $H_0$ or $H_1$, as given in \S\ref{subsec:testing}, are true, and thus we could not assess the size or power of any test on those hypotheses. 
 
 Instead, we assume either $H_0$ is true or a specific $H_1$ is true and work from there. 
 
