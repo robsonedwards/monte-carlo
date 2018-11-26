@@ -1,11 +1,14 @@
 
-\documentclass[11pt, oneside]{article}
+\documentclass[10pt, oneside]{article}
 \usepackage{geometry} 
 \geometry{a4paper} 
+\geometry{top = 1cm, left = 1.5cm, right = 1.5cm}
 %\usepackage[parfill]{parskip}  % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}			% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
 								% TeX will automatically convert eps --> pdf in pdflatex		
 \usepackage{amssymb}
+
+\usepackage{xcolor}
 
 \pagenumbering{gobble}
 
@@ -17,23 +20,103 @@
 \author{Robson Edwards}
 \date{November 22, 2018}		% Activate to display a given date or no date
 
+\newcommand \diabox[2]{\colorbox{lightgray}{\parbox{#1}{#2}}}
+
 \begin{document}
 
 \maketitle
 %\tableofcontents
 
-\section{Problem}
+\begin{minipage}[t]{8cm}
 
-We investigate poll data from the 2016 U.S. Election and attempt to answer the research question ``Do polls become more accurate closer to the election?''
+\begin{minipage}[t]{8cm}
 
-We use an error metric suggested by Nate Silver, 
+\section*{Problem}
+\diabox{8cm}{
+Research Question: ``Do polls become more accurate closer to the election?''
 
-\section{Simulation}
+~
 
+Assume poll errors are drawn from a normal distribution with a variance that is constant with respect to time.
 
+\begin{itemize}
+\item $H_0$: Poll error mean does not vary with respect to time.
 
-\section{Tests}
+\item $H_1$: Poll error is strictly decreasing with respect to time. 
 
+\item Tests: Pearson and Spearman correlation
+\end{itemize}
 
+}
+\end{minipage}
+
+\begin{minipage}[t]{8cm}
+~
+
+\section*{Testing}
+\diabox{8cm}{
+So now we have four (one $H_0$ and three $H_1$) hypotheses, each of which corresponds to 19 simulation ``situations'' (4 showing different durations, 4 showing different pollsizes, 11 showing different grades) at three different sample sizes. 
+
+For each of these $4 \times 19 \times 3 = 228$ situations we apply both statistical tests. Then for the 57 $H_0$ situations we calculate size as the proportion of the $n$ samples for which $H_0$ was incorrectly rejected.
+
+For the 171 situations under various $H_1$'s we calculate power as the proportion of the time that $H_0$ was correctly rejected. 
+}
+
+\end{minipage}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{1cm}
+
+\vskip 2in
+
+\Huge$\rightarrow$
+
+\vskip 2in
+
+$\leftarrow$\normalsize
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{8cm}
+
+\section*{Simulation}
+\diabox{8cm}{
+To determine \emph{size} we simulate \emph{situations} where $H_0$ is true. 
+
+\begin{itemize}
+\item Situation: Time has no effect on error so $\beta = 0$. In each of the below, draw errors from a normal with mean and sd as observed. Then attach a randomly selected enddate. Then report the simulated data
+
+\begin{itemize}
+\item consider different grades: A+, A, ... C-, D, and NA
+
+\item consider different quartiles for duration
+
+\item consider different quartiles for pollsize
+\end{itemize}
+
+\end{itemize}
+
+To determine the \emph{power} we simulate in \emph{situations} where a $H_1$ is true. 
+
+\begin{itemize}
+\item Situation: Time has a tiny effect on error, $\beta = -0.001$. Now, draw errors from a normal with sd as observed, and a mean that decreases as a function of $\beta \times$enddate. 
+
+\begin{itemize}
+\item consider different subsets of the data as above
+\end{itemize}
+
+\item Situation: Time has a medium effect on error, $\beta = -0.01$. Process as above
+
+\item Situation: Time has a large effect on error, $\beta = -0.1$. Process as above. 
+
+\end{itemize}
+
+For each of the above sub-situations we take normal random samples with the appropriate mean and sd, and with n = 100, 1000, 4000. 
+
+Note in the above $\beta$ is a measure of relationship between error mean and time.
+
+}
+\end{minipage}
 
 \end{document}  
