@@ -17,7 +17,7 @@ polls_us_election_2016 %>%
   # Remove unneeded columns 
   select(-adjpoll_clinton, -adjpoll_trump, -adjpoll_johnson, -adjpoll_mcmullin,
          -rawpoll_clinton, -rawpoll_trump, -rawpoll_johnson, -rawpoll_mcmullin,
-         -startdate, -population) -> #-pollster#??
+         -startdate, -population) -> 
   polls
 polls$state <- as.factor(as.character(polls$state))
 
@@ -47,9 +47,6 @@ polls %>%
   mutate(error2 = error ^2) %>%
   select(-result, -clinton_margin) -> #remove unneeded columns
   polls
-
-#polls$grade <- addNA(polls$grade) 
-  #So we can see how polls by pollsters 538 didn't grade performed
 
 polls$enddate <- as.numeric(polls$enddate) - as.numeric(as.Date("2016-11-08"))
   # Now enddate is the number of days before the election, this makes intercept
@@ -111,19 +108,25 @@ spearman <- function(x, y){
   return(unname(test["p.value"]))
 }
 
-for(method in c(pearson, spearman)){
-  for(effect_size in c(0, -0.001, -0.01, -0.05)){
-    for(g in levels(polls$grade)){
-      data <- polls[polls$grade == g,]
-      for(n in c(100, 1000, 4000)){
-        print(as.character( c("Effect:", effect_size,  
-                ". Grade:", g, ". n: ", n, ". Result: ", 
-                simulate_and_test(data, n, effect_size, method))))
+### Change to true to get spammed. Unfortunately I wasn't able to implement a 
+  # more readable version of this in time. 
+if(FALSE){
+  for(method in c(pearson, spearman)){
+    for(effect_size in c(0, -0.001, -0.01, -0.05)){
+      for(g in levels(polls$grade)){
+        data <- polls[which(polls$grade == g),]
+        for(n in c(100, 1000, 4000)){
+          print(as.character( c("Effect:", effect_size,  
+                  ". Grade:", g, ". n: ", n, ". Result: ", 
+                  simulate_and_test(data, n, effect_size, method))))
+        }
       }
     }
   }
 }
 
-############################# Garbage collection!! #############################
-rm(i, U.S., goodpolls, polls_sample, polls_us_election_2016, results_us_election_2016)
-
+for(method in c(pearson, spearman)){
+  for(effect_size in c(0, -0.001, -0.01, -0.05)){
+    print(unlist(c(effect_size, simulate_and_test(data, 1000, effect_size, method))))
+  }
+}
