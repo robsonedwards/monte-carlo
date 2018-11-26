@@ -124,42 +124,6 @@ for(method in c(pearson, spearman)){
   }
 }
 
-# get_table <- function(effect_size, method){
-#   get_cell <- function(i, n, effect_size, method){
-#     data_subset <- data_subsets[i]
-#     return (simulate_and_test(data_subset, n, effect_size, method))
-#   }
-#   n100 = lapply(1:12, function(i){get_cell(i, 100, effect_size, method)})
-#   n1000 = lapply(1:12, function(i){get_cell(i, 1000, effect_size, method)})
-#   n4000 = lapply(1:12, function(i){get_cell(i, 4000, effect_size, method)})
-#   
-#   table <- data.frame(n100, n1000, n4000)
-#   rownames(table)<- c(levels(polls$grade), "all")
-#   return(table)
-# }
-# 
-# make_hypothesis_tables <- function(){
-#   for(effect_size in c(0, -0.001, -0.01, -0.05)){
-#     for(method in c(pearson, spearman)){
-#       get_table(effect_size, method)
-#     }
-#   }
-# }
-# 
-# get_data_subsets <- function(){
-#   data_subsets <- list()
-#   for(i in 1:length(levels(polls$grade))){
-#     data_subsets <- c(data_subsets, 
-#                       list(polls[polls$grade == levels(polls$grade)[i],]))
-#   }
-#   data_subsets <- c(data_subsets, list(polls))
-#   return(data_subsets)
-# }
-# 
-# data_subsets <- get_data_subsets()
-# 
-# make_hypothesis_tables()
-
 ############################# Garbage collection!! #############################
 rm(i, U.S., goodpolls, polls_sample, polls_us_election_2016, results_us_election_2016)
 
