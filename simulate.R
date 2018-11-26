@@ -49,7 +49,7 @@ polls %>%
   polls
 
 polls$grade <- addNA(polls$grade) 
-  #So we can see how polls 538 didn't grade performed
+  #So we can see how polls by pollsters 538 didn't grade performed
 
 polls$enddate <- as.numeric(polls$enddate) - as.numeric(as.Date("2016-11-08"))
   # Now enddate is the number of days before the election, this makes intercept
@@ -81,11 +81,35 @@ cor.test(goodpolls$error2, goodpolls$enddate)
 
 ################################## Simulation ##################################
 
-# H0: Enddate has no effect on error. 
-# H1: small effect ( error ~ N( mu + beta * .. -0.001 )
-# H1: medium effect ( .. -0.01 )
-# H1: large effect ( .. -0.1 )
+simulate_and_test <- function(data_subset, n, effect_size, test){
+  # NOTE test must take only x and y and return p value 
+  # simulate
+  mean_error = mean(data_subset$error)
+  mean_enddate = mean(data_subset$enddate)
+  sd_error = sd(data_subset$error)
+  sim <- data.frame(enddate = sample(data_subset$enddate, n * 100, replace = TRUE))
+  sim$error <- rnorm(n * 100, sd = sd_error, mean =  (sim$enddate - mean_enddate) * effect_size + mean_error)
+  # test
+  pvals <- 1:100
+  apply_test <- function(i){
+    range <- (i * 100 - 99):(i * 100)
+    return(test(sim$error[range], sim$enddate[range]))
+  }
+  pvals <- lapply(pvals, apply_test)
+  pvals <- unlist(pvals)
+  result <- sum(pvals < 0.05) # size or power. 
+  return(result / 100)
+}
 
+pearson <- function(x, y){
+  test <- cor.test(x, y, alternative = "less", method = "pearson")
+  return(unname(test["p.value"]) )
+}
+
+spearman <- function(x, y){
+  test <- cor.test(x, y, alternative = "less", method = "spearman")
+  return(unname(test["p.value"]))
+}
 
 
 ############################## Hypothesis Testing ##############################
