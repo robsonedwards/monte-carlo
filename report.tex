@@ -18,7 +18,9 @@
 \author{Robson Edwards}
 \date{November 22, 2018}
 
-\newcommand \Rcode[1]{{\texttt{\colorbox{lightgray}{#1}}}}
+\definecolor{codegray}{gray}{0.88}
+\newcommand \Rcode[1]{{\texttt{\colorbox{codegray}{#1}}}}
+%\newcommand \Rcode[1]{{\texttt{{#1}}}}
 
 \begin{document}
 
@@ -30,8 +32,11 @@ I confirm that the following report and associated code is my own work, except w
 
 \section*{Abstract}
 
-We investigate poll data from the 2016 U.S. Election and attempt to answer the research question ``Do polls become more accurate closer to the election?'' To do this, we simulate large amounts of data [ from the estimated distribution of the real data ] / [using the properties of the real data]. 
-We then estimate the correlation between poll date and poll accuracy using two different statistical tests. 
+We investigate poll data from the 2016 U.S. Election and attempt to answer the research question ``Do polls become more accurate closer to the election?'' 
+To do this, we first devise a measure of poll error. 
+We simulate large amounts of data, in various situations, informed by the properties of the real data. 
+We then test the correlation between poll date and our error measure, using a parametric test involving Pearson's product moment correlation coefficient, and also a non-parametric test using Spearman's rank correlation coefficient. \cite{R}
+We also determine the size and power 
 
 We find that... %TODO
 
@@ -41,34 +46,53 @@ Our tests have a certain size and power... %TODO
 
 \section{Introduction}
 
-``Poll results from US 2016 presidential elections aggregated from HuffPost Pollster, RealClearPolitics, polling firms and news reports.'' [TODO: cite dslabs]
+We use the \Rcode{polls\_us\_election\_2016} dataset from \Rcode{dslabs}, which contains poll data from FiveThirtyEight which include ``Poll results from US 2016 presidential elections aggregated from HuffPost Pollster, RealClearPolitics, polling firms and news reports.'' \cite{dslabs}
 
 %Give a concise background to the problem, referring to previous work in the field if that’s appropriate. For MT4613 you need to demonstrate that you understand the problem. Give a motivation for the work that’s going to be described in later sections – why did you do it (i.e., why is it scientifically worthwhile/interesting)? “Proper” scientific papers may also lay out the scientific hypotheses being tested – this might not be applicable to the reports you write for MT4613. Finish by describing in a couple of sentences how the rest of the report is structured (especially if you use a non-standard layout).
 
 \section{Methods}
 
+We loaded the aforementioned data and then ``wrangled'' it, removing some unneeded variables and transforming others. We then simulated data 
+More detail can be found below and in the attached R script. 
+
 Summary: We loaded and wrangled data, then simulated data, then applied tests. 
 
 \subsection{Data Wrangling}
 
+The aforementioned data includes \Rcode{polls}, 4208 observations (rows) of 15 variables (columns), where each row represents a single poll. The columns include at least five which we ignore for reasons outside the scope of this exercise. The remainder represent variables which we make use of below. 
 
+The data also include the \Rcode{results} of the election, from which we use the two columns and 51 rows representing the popular vote percentages won by Hillary Clinton and Donald Trump in each of the 50 states and in the District of Columbia. Unfortunately, there is not a row for the popular vote in the U.S. as a whole. We will later consider poll error by region. To do this, we need to know the result of the election in each region. 1106 of the 4208 polls in the data have the whole U.S. as their region so we construct a row for the result in the U.S. as follows: ``Clinton's final tally came in at 65,844,610, compared to Donald Trump's 62,979,636... votes for other candidates [were] 7,804,213.'' \cite{time} We thus insert a row with \Rcode{state} U.S., \Rcode{clinton} 48.2\%, \Rcode{trump} 46.1\%.
 
-``Clinton's final tally came in at 65,844,610, compared to Donald Trump's 62,979,636, with a difference of 2,864,974. The total number of votes for other candidates was 7,804,213.'' \cite{time}
+In \Rcode{polls}, \Rcode{state} is a factor representing where the poll took place. There are 57 levels, including 50 for the 50 states, one for the District of Columbia, and one for the whole country. The remaining five levels refer to specific congressional districts within either Maine or Nebraska. We don't have results for congressional districts so we can't use the 29 polls with these \Rcode{state}s and thus ignore them.
 
-``...compare the margin in the poll against the actual result. For instance, if a poll showed the Democrat winning by 2 percentage points in a race that the Republican ended up winning by 3 points, that would be a 5-point error. It would also be a 5-point error if the Democrat won by 7 points. We consider these errors to be equally bad even though the pollster ``called'' the winner correctly in one case and failed to do so in the other.''
-\cite{silver}
+We make two other changes to simplify inference later. We consider \Rcode{enddate} in the unit of days before the election, which is a negative integer rather than a raw date. We also consider the poll duration in days instead of \Rcode{startdate}. 
 
-Therefore, for each poll, we construct a variable \Rcode{error} as the poll margin minus the result margin for that state. Then, positive \Rcode{error} values correspond to Hillary Clinton losing a state which the pollster expected her to lose by a greater margin than the pollster expected, losing a state when she was expected to win, or winning a state by a lesser margin than expected (or, equivalently, Trump winning a state by a \emph{greater} margin than expected, and so on). Negative values of \Rcode{error} correspond to the above situations except with Clinton's name replaced by Trump's. 
+Now we ought to construct a measure of poll error which will allow us to test our hypotheses. Our first instinct is to use an error measure suggested by Nate Silver \cite{silver}, where he suggests we ``...compare the margin in the poll against the actual result. For instance, if a poll showed the Democrat winning by 2 percentage points in a race that the Republican ended up winning by 3 points, that would be a 5-point error. It would also be a 5-point error if the Democrat won by 7 points. We consider these errors to be equally bad even though the pollster `called' the winner correctly in one case and failed to do so in the other.''
+
+Therefore, we construct a variable \Rcode{error} as the poll margin for that poll minus the result margin for that state. Then, positive \Rcode{error} values correspond to Hillary Clinton losing a state which the pollster expected her to lose by a greater margin than the pollster expected, losing a state when she was expected to win, or winning a state by a lesser margin than expected (or, equivalently, Donald Trump winning a state by a \emph{greater} margin than expected, and so on). Negative values correspond to the above situations except with Clinton's name replaced by Trump's. 
+
+It is not obvious whether a decrease in \Rcode{error} corresponds to an improvement in accuracy. This is certainly not ideal. Therefore, we will construct another variable, \Rcode{error2}, as \Rcode{error \^{} 2}. Now \Rcode{error2} is obviously always non-negative, so a decrease in this measure will always correspond to an improvement in poll accuracy. However, a relationship that is linear on the \Rcode{error} scale is certainly not linear on this scale. 
+
+We also remove 43 ``outlier'' observations which have \Rcode{error} more than three standard deviations away from the mean. After this, \Rcode{error} is approximately normally distributed. 
 
 \subsection{Simulating Data}
 
-We created a large amount of simulated data by sampling from a distribution (which one?) with properties informed by the true data. 
+The specified goal of this assignment is to generate a large amount of data in different situations, apply our statistical tests to the data, and then determine the \emph{statistical size} and \emph{power} of those tests in those situations. Of course, the size of a test is the probability of making a Type I error, that is, the probability of rejecting $H_0$, given that it is true. Similarly, the power of a test is the probability of correctly rejecting $H_0$ given $H_1$ is true, for a given $H_1$ \cite{spec}. Were we to simulate directly from the data, we would not know whether $H_0$ or $H_1$, as given in \S\ref{subsec:testing}, are true, and thus we could not assess the size or power of any test on those hypotheses. 
+
+Instead, we assume either $H_0$ is true or a specific $H_1$ is true and work from there. 
+
+Because \Rcode{error} is approximately normally distributed, we can 
+
+We create a large amount of simulated data by sampling from a distribution (which one?) with properties informed by the true data. 
 
 We could have also simulated data through non-parametric means, such as creating an empirical distribution function from the true data and then sampling from its inverse via a standard uniform distribution. (right?) However, our data contains a number of different potential input variables, under different ``situations'' as described earlier, each having different levels of covariance. This non-parametric method quickly becomes very complex to design and implement, and it's not obvious that it would yield significantly better results than the parametric simulation method. (right? some sort of ks.test to make sure true data is roughly bi/multi-nomial or whatever we end up sampling from?) Also the spec said not to
 
 \subsection{Testing Hypotheses}
+\label{subsec:testing}
 
 Correlation tests. 
+
+
 
 %Describe what you did, in enough detail that someone else could reproduce it. In academic papers this is sometimes not possible due to space constraints, so full details are relegated to an appendix; sometimes the computer code and input data are archived in an appendix (especially online appendices). For the reports in MT4613 you should be able to explain what you did concisely without the need for appendices. If the methods section is quite long, you may need subheadings to divide it into manageable parts. Don’t be afraid of using formulae here to explain your methods, but make sure you define all the symbols used. It may also be helpful to use a figure, for example to show a map of the study area, or a diagram explaining how various analyses fit together. Such figures will likely not be required in MT4613.
 
@@ -93,6 +117,11 @@ What do results mean for the research question? Further research?
 %Concisely lay out the main conclusions of the paper. This section is often somewhat redundant, given that these are also given in the abstract (although in less detail). You’re probably better to finish the discussion with a pity [pithy?] concluding paragraph.
 
 \begin{thebibliography}{9}
+
+\bibitem{dslabs}{
+ Rafael A. Irizarry (2018). \textit{dslabs: Data Science Labs.} R package
+ version 0.5.1. https://CRAN.R-project.org/package=dslabs
+}
 \bibitem{time}{
 Begley, S. (20 Dec. 2016). 
 \textit{Hillary Clinton Leads by 2.8 Million in Final Popular Vote Count.} [online] Time. Available at: http://time.com/4608555/hillary-clinton-popular-vote-final/ [Accessed 22 Nov. 2018].
@@ -102,6 +131,20 @@ Begley, S. (20 Dec. 2016).
 Silver, N. (30 May 2018). 
 \textit{The Polls Are All Right} [online] FiveThirtyEight. Available at: https://fivethirtyeight.com/features/the-polls-are-all-right/ [Accessed 22 Nov. 2018].
 }
+
+\bibitem{spec}{
+Jacobsen, E. (3 Nov. 2018).
+Computing in Statistics: Assignment 3. [Not published].
+}
+
+\bibitem{R}{
+R Core Team (2018). 
+\textit{R: A language and environment for statistical
+computing.} R Foundation for Statistical Computing, Vienna, Austria.
+URL https://www.R-project.org/.
+}
+ 
+
 \end{thebibliography}
 
 %This section is sometimes called “Literature cited”. Each printed text or web site referred to in the report should be listed here, in a standard format. The format can mimic any standard statistics journal; if in doubt, use the Harvard system of referencing (search on the web for information about this), which is something of a standard in science.
